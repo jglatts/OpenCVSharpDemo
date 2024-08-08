@@ -33,6 +33,8 @@
             this.btnStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnFindGap = new System.Windows.Forms.Button();
+            this.radioBtnBlackWhite = new System.Windows.Forms.RadioButton();
+            this.radioBtnColor = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.mainFeedPicBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -92,11 +94,36 @@
             this.btnFindGap.UseVisualStyleBackColor = true;
             this.btnFindGap.Click += new System.EventHandler(this.btnFindGap_Click);
             // 
+            // radioBtnBlackWhite
+            // 
+            this.radioBtnBlackWhite.AutoSize = true;
+            this.radioBtnBlackWhite.Location = new System.Drawing.Point(552, 88);
+            this.radioBtnBlackWhite.Name = "radioBtnBlackWhite";
+            this.radioBtnBlackWhite.Size = new System.Drawing.Size(110, 19);
+            this.radioBtnBlackWhite.TabIndex = 5;
+            this.radioBtnBlackWhite.Text = "Black and White";
+            this.radioBtnBlackWhite.UseVisualStyleBackColor = true;
+            this.radioBtnBlackWhite.CheckedChanged += new System.EventHandler(this.radioBtnBlackWhite_CheckedChanged);
+            // 
+            // radioBtnColor
+            // 
+            this.radioBtnColor.AutoSize = true;
+            this.radioBtnColor.Checked = true;
+            this.radioBtnColor.Location = new System.Drawing.Point(552, 122);
+            this.radioBtnColor.Name = "radioBtnColor";
+            this.radioBtnColor.Size = new System.Drawing.Size(54, 19);
+            this.radioBtnColor.TabIndex = 6;
+            this.radioBtnColor.TabStop = true;
+            this.radioBtnColor.Text = "Color";
+            this.radioBtnColor.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 369);
+            this.ClientSize = new System.Drawing.Size(695, 369);
+            this.Controls.Add(this.radioBtnColor);
+            this.Controls.Add(this.radioBtnBlackWhite);
             this.Controls.Add(this.btnFindGap);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnStart);
@@ -118,5 +145,7 @@
         private Button btnStart;
         private Button btnStop;
         private Button btnFindGap;
+        private RadioButton radioBtnBlackWhite;
+        private RadioButton radioBtnColor;
     }
 }

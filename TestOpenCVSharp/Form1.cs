@@ -1,3 +1,12 @@
+/*
+ *  Simple proof-of-concept for OpenCvSharp Inspection System
+ *  
+ *  ToDo:
+ *      - add seperate window for real time camera view
+ *  
+ *  Date:   8/8/24
+ *  Author: John Glatts
+ */
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,12 +25,15 @@ namespace TestOpenCVSharp
         private VideoCapture capture;
         private Mat frame;
         private Bitmap image;
+        private bool useBlackWhite;
         private int camIndex;
 
         public Form1()
         {
             InitializeComponent();
             camIndex = 1;
+            useBlackWhite = false;
+            cancelTokenSource = new CancellationTokenSource();
             openCam();
             btnStart_Click(null, null);
         }
@@ -62,6 +74,14 @@ namespace TestOpenCVSharp
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            try
+            {
+                cancelTokenSource.Cancel();
+                cancelTokenSource.Dispose();
+            }
+            catch (Exception ex)
+            {
+            }
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             Task task = new Task(startLiveFeed, token);
@@ -100,8 +120,14 @@ namespace TestOpenCVSharp
                     break;
                 }
                 capture.Read(frame);
+                if (useBlackWhite)
+                {
+                    Mat new_frame = new Mat();
+                    Cv2.CvtColor(frame, new_frame, ColorConversionCodes.BGR2GRAY);
+                    frame = new_frame;
+                }
                 updateLiveFeedImage(frame);
-                Task.Delay(10);
+                Task.Delay(5);
             }
         }
 
@@ -195,20 +221,18 @@ namespace TestOpenCVSharp
             Cv2.ImShow("left", roi_left);
             Cv2.ImShow("right", roi_right);
 
+            Cv2.FindContours(roi_left, out contoursSetOne, out hierarchyIndexesOne,
+                             mode: RetrievalModes.External,
+                             method: ContourApproximationModes.ApproxSimple);
 
+            Cv2.FindContours(roi_right, out contoursSetTwo, out hierarchyIndexesTwo,
+                             mode: RetrievalModes.External,
+                             method: ContourApproximationModes.ApproxSimple);
             try
             {
                 InputArray left =  InputArray.Create(roi_left);
                 InputArray right =  InputArray.Create(roi_right);
 
-                Cv2.FindContours(roi_left, out contoursSetOne, out hierarchyIndexesOne,
-                                 mode: RetrievalModes.External,
-                                 method: ContourApproximationModes.ApproxSimple);
-
-                Cv2.FindContours(roi_right, out contoursSetTwo, out hierarchyIndexesTwo,
-                                 mode: RetrievalModes.External,
-                                 method: ContourApproximationModes.ApproxSimple);
-                
                 // failing here, debug!
                 Cv2.ConvexHull(left, out_left);
                 Cv2.ConvexHull(right, out_right);
@@ -257,6 +281,11 @@ namespace TestOpenCVSharp
             }
             Task.Delay(10);
             detectGap();
+        }
+
+        private void radioBtnBlackWhite_CheckedChanged(object sender, EventArgs e)
+        {
+            useBlackWhite = radioBtnBlackWhite.Checked == true;
         }
     }
 }
