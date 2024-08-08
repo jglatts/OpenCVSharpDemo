@@ -22,7 +22,7 @@ namespace TestOpenCVSharp
             InitializeComponent();
             camIndex = 1;
             listCamDevices();
-            //tryOpenCam();
+            openCam();
         }
 
         private void listCamDevices()
@@ -45,18 +45,8 @@ namespace TestOpenCVSharp
         private void tryOpenCam()
         {
             frame = new Mat();
+            openCam();    
             
-            try
-            {
-                capture = new VideoCapture(camIndex);
-                capture.Open(camIndex);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException);
-                return;
-            }   
-
             if (capture.IsOpened())
             {
                 capture.Read(frame);
@@ -77,10 +67,8 @@ namespace TestOpenCVSharp
             task.Start();
         }
 
-        private void startLiveFeed()
+        private void openCam() 
         {
-            frame = new Mat();
-
             try
             {
                 capture = new VideoCapture(camIndex);
@@ -91,9 +79,15 @@ namespace TestOpenCVSharp
                 MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException);
                 return;
             }
+        }
+
+        private void startLiveFeed()
+        {
+            frame = new Mat();
 
             if (!capture.IsOpened())
             {
+                MessageBox.Show("not open!");
                 return;
             }
 
@@ -112,7 +106,7 @@ namespace TestOpenCVSharp
                     mainFeedPicBox.Image.Dispose();
                 }
                 mainFeedPicBox.Image = image;
-                Task.Delay(1000);   // 1second wait
+                Task.Delay(10);   
             }
 
         }
