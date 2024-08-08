@@ -23,3 +23,7 @@ https://stackoverflow.com/questions/73599849/the-type-or-namespace-name-extensio
 				Run time Errors
 https://stackoverflow.com/questions/5731572/error-while-running-opencv-based-c-sharp-code?rq=4
 ====================================================================================================================
+
+
+General Docs
+https://shimat.github.io/opencvsharp_docs/html/d69c29a1-7fb1-4f78-82e9-79be971c3d03.htm
