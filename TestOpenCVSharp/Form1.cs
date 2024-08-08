@@ -178,18 +178,48 @@ namespace TestOpenCVSharp
             Mat src_thresh = new Mat();
             Mat roi_left = new Mat();
             Mat roi_right = new Mat();
+            Mat out_left = new Mat();
+            Mat out_right = new Mat();
+            OpenCvSharp.Point[][] contoursSetOne;
+            HierarchyIndex[] hierarchyIndexesOne;
+            OpenCvSharp.Point[][] contoursSetTwo;
+            HierarchyIndex[] hierarchyIndexesTwo;
             int middle_split = src_canny.Cols / 2;
 
-            //roi_left = src_canny(Range(0, src_canny.size[0]), Range(0, 47));
             roi_left = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
                                         new OpenCvSharp.Range(0, middle_split));
 
-            // roi_right = src_canny(Range(0, src_canny.size[0]), Range(47, src_canny.size[1]));
             roi_right = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
                                          new OpenCvSharp.Range(middle_split, src_canny.Cols));
 
             Cv2.ImShow("left", roi_left);
             Cv2.ImShow("right", roi_right);
+
+
+            try
+            {
+                InputArray left =  InputArray.Create(roi_left);
+                InputArray right =  InputArray.Create(roi_right);
+
+                Cv2.FindContours(roi_left, out contoursSetOne, out hierarchyIndexesOne,
+                                 mode: RetrievalModes.External,
+                                 method: ContourApproximationModes.ApproxSimple);
+
+                Cv2.FindContours(roi_right, out contoursSetTwo, out hierarchyIndexesTwo,
+                                 mode: RetrievalModes.External,
+                                 method: ContourApproximationModes.ApproxSimple);
+                
+                // failing here, debug!
+                Cv2.ConvexHull(left, out_left);
+                Cv2.ConvexHull(right, out_right);
+
+                Cv2.ImShow("leftConvex", out_left);
+                Cv2.ImShow("rightConvex", out_right);
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+            }
         }
 
         private void updateLiveFeedImage(Mat frame) 
@@ -199,7 +229,7 @@ namespace TestOpenCVSharp
             {
                 mainFeedPicBox.Image.Dispose();
             }
-        mainFeedPicBox.Image = image;
+            mainFeedPicBox.Image = image;
         }
 
         private void btnStop_Click_1(object sender, EventArgs e)
