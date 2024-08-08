@@ -22,8 +22,8 @@ namespace TestOpenCVSharp
         {
             InitializeComponent();
             camIndex = 1;
-            listCamDevices();
             openCam();
+            btnStart_Click(null, null);
         }
 
         private void listCamDevices()
@@ -136,9 +136,8 @@ namespace TestOpenCVSharp
                              mode: RetrievalModes.External,
                              method: ContourApproximationModes.ApproxNone);
 
+            anaylzeFrame(src_roi, src_canny);
             MessageBox.Show("Contours Length: " + contours.Length);
-
-            //anaylzeFrame();
         }
 
         private void anaylzeFrame(Mat src_roi, Mat src_canny)
@@ -149,6 +148,48 @@ namespace TestOpenCVSharp
             // find distance between the convex hulls
             // draw both sets on OG img to examine
             // thats gap!
+            /*
+                CPP Source
+                Mat src_gray, src_thresh;
+                Mat roi_left, roi_right;
+                vector<vector<Point>> contours_set_one, contours_set_two;
+                vector<Point> convex_hull_points_one, convex_hull_points_two;
+                roi_left = src_canny(Range(0, src_canny.size[0]), Range(0, 47));
+                roi_right = src_canny(Range(0, src_canny.size[0]), Range(47, src_canny.size[1]));
+                findContours(roi_left, contours_set_one, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+                findContours(roi_right, contours_set_two, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+                convex_hull_points_one = contoursConvexHull(contours_set_one);
+                convex_hull_points_two = contoursConvexHull(contours_set_two);
+                translateContours(convex_hull_points_two, 47);
+                Rect rect_left = boundingRect(convex_hull_points_one);
+                Rect rect_right = boundingRect(convex_hull_points_two);
+                rectangle(src_roi, rect_left, Scalar(0, 0, 255), 2);
+                rectangle(src_roi, rect_right, Scalar(0, 0, 255), 2);
+                int rect_left_pos = rect_left.x + rect_left.width;
+                int rect_right_pos = rect_right.x;
+                int center_pos = (rect_left_pos + rect_right_pos) / 2;
+                cout << "The center pos is " << center_pos << endl;
+                line(src_roi, Point(rect_right_pos, 40), Point(rect_left_pos, 40), Scalar(0, 0, 255), 1);
+                line(src_roi, Point(center_pos, 0), Point(center_pos, roi_left.size[0]), Scalar(255, 0, 0), 1);
+                cout << "Distance to left-edge " << center_pos - rect_left.x << endl;
+                cout << "Distance to right-edge " << (rect_right.x + rect_right.width) - center_pos << endl;
+            */
+            Mat src_gray = new Mat();
+            Mat src_thresh = new Mat();
+            Mat roi_left = new Mat();
+            Mat roi_right = new Mat();
+            int middle_split = src_canny.Cols / 2;
+
+            //roi_left = src_canny(Range(0, src_canny.size[0]), Range(0, 47));
+            roi_left = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
+                                        new OpenCvSharp.Range(0, middle_split));
+
+            // roi_right = src_canny(Range(0, src_canny.size[0]), Range(47, src_canny.size[1]));
+            roi_right = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
+                                         new OpenCvSharp.Range(middle_split, src_canny.Cols));
+
+            Cv2.ImShow("left", roi_left);
+            Cv2.ImShow("right", roi_right);
         }
 
         private void updateLiveFeedImage(Mat frame) 
@@ -158,7 +199,7 @@ namespace TestOpenCVSharp
             {
                 mainFeedPicBox.Image.Dispose();
             }
-            mainFeedPicBox.Image = image;
+        mainFeedPicBox.Image = image;
         }
 
         private void btnStop_Click_1(object sender, EventArgs e)
