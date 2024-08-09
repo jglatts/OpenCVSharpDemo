@@ -179,7 +179,7 @@ namespace TestOpenCVSharp
                              method: ContourApproximationModes.ApproxNone);
 
             anaylzeFrame(src_roi, src_canny);
-            MessageBox.Show("Contours Length: " + contours.Length);
+            //MessageBox.Show("Contours Length: " + contours.Length);
         }
 
         private void anaylzeFrame(Mat src_roi, Mat src_canny)
@@ -196,6 +196,7 @@ namespace TestOpenCVSharp
                 Mat roi_left, roi_right;
                 vector<vector<Point>> contours_set_one, contours_set_two;
                 vector<Point> convex_hull_points_one, convex_hull_points_two;
+
                 roi_left = src_canny(Range(0, src_canny.size[0]), Range(0, 47));
                 roi_right = src_canny(Range(0, src_canny.size[0]), Range(47, src_canny.size[1]));
                 findContours(roi_left, contours_set_one, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -203,6 +204,7 @@ namespace TestOpenCVSharp
                 convex_hull_points_one = contoursConvexHull(contours_set_one);
                 convex_hull_points_two = contoursConvexHull(contours_set_two);
                 translateContours(convex_hull_points_two, 47);
+            
                 Rect rect_left = boundingRect(convex_hull_points_one);
                 Rect rect_right = boundingRect(convex_hull_points_two);
                 rectangle(src_roi, rect_left, Scalar(0, 0, 255), 2);
@@ -210,6 +212,7 @@ namespace TestOpenCVSharp
                 int rect_left_pos = rect_left.x + rect_left.width;
                 int rect_right_pos = rect_right.x;
                 int center_pos = (rect_left_pos + rect_right_pos) / 2;
+
                 cout << "The center pos is " << center_pos << endl;
                 line(src_roi, Point(rect_right_pos, 40), Point(rect_left_pos, 40), Scalar(0, 0, 255), 1);
                 line(src_roi, Point(center_pos, 0), Point(center_pos, roi_left.size[0]), Scalar(255, 0, 0), 1);
@@ -244,31 +247,44 @@ namespace TestOpenCVSharp
             Cv2.FindContours(roi_right, out contoursSetTwo, out hierarchyIndexesTwo,
                              mode: RetrievalModes.External,
                              method: ContourApproximationModes.ApproxSimple);
+
+            /*
+            MessageBox.Show("cSetOne.Size " + contoursSetOne.Length + 
+                            " cSetTwo.Size " + contoursSetTwo.Length);
+            */
             try
             {
-                /*
-                vector<vector<Point>> hull(contours.size() );
-                for (size_t i = 0; i < contours.size(); i++)
-                {
-                    convexHull(contours[i], hull[i]);
-                }
-                */
+                string s = "";
                 for (int i = 0; i < contoursSetOne.Length; i++) 
                 {
-                    //InputArray left_in = InputArray.Create<InputArray>(contoursSetOne[i]);
-                    Mat out_hull_left = new Mat();
-                    //Cv2.ConvexHull(contoursSetOne[i], out_hull_left);
+                    List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
+                    for (int j = 0; j < contoursSetOne[i].Length; j++)
+                    {
+                        points.Add(contoursSetOne[i][j]);
+                    }
+                    OpenCvSharp.Point[] hull_pts = Cv2.ConvexHull(points);
+                    s += "idx " + i.ToString() + " - hull_pts.Size " + hull_pts.Length.ToString() + "\n";
+                    // draw the hull pts
+                    for (int k = 0; k < hull_pts.Length; k++) 
+                    {
+                        //src_roi.Add(hull_pts[i]);
+                    }
                 }
+                MessageBox.Show(s);
 
-                MessageBox.Show("num rows " + frame.Rows.ToString() + "\n" + 
-                                "num cols " + frame.Cols.ToString());
-                /*
-                Cv2.ConvexHull(left_in, out_left);
-                Cv2.ConvexHull(right_in, out_right);
+                s = "";
+                for (int i = 0; i < contoursSetTwo.Length; i++)
+                {
+                    List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
+                    for (int j = 0; j < contoursSetTwo[i].Length; j++)
+                    {
+                        points.Add(contoursSetTwo[i][j]);
+                    }
+                    OpenCvSharp.Point[] hull_pts = Cv2.ConvexHull(points);
+                    s += "idx " + i.ToString() + " - hull_pts.Size " + hull_pts.Length.ToString() + "\n";
+                }
+                MessageBox.Show(s);
 
-                Cv2.ImShow("leftConvex", out_left);
-                Cv2.ImShow("rightConvex", out_right);
-                */
             }
             catch (Exception ex) 
             {
