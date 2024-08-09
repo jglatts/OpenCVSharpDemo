@@ -15,6 +15,7 @@ using OpenCvSharp.Extensions;
 using DirectShowLib;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.Intrinsics;
 
 namespace TestOpenCVSharp
 {
@@ -79,9 +80,7 @@ namespace TestOpenCVSharp
                 cancelTokenSource.Cancel();
                 cancelTokenSource.Dispose();
             }
-            catch (Exception ex)
-            {
-            }
+            catch (Exception ex) { }
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             Task task = new Task(startLiveFeed, token);
@@ -119,16 +118,33 @@ namespace TestOpenCVSharp
                 {
                     break;
                 }
-                capture.Read(frame);
-                if (useBlackWhite)
-                {
-                    Mat new_frame = new Mat();
-                    Cv2.CvtColor(frame, new_frame, ColorConversionCodes.BGR2GRAY);
-                    frame = new_frame;
-                }
-                updateLiveFeedImage(frame);
-                Task.Delay(5);
+                getAndDisplayFrame(5);
             }
+        }
+
+        private void getAndDisplayFrame(int delay)
+        {
+            capture.Read(frame);
+            if (useBlackWhite)
+            {
+                Mat new_frame = new Mat();
+                Cv2.CvtColor(frame, new_frame, ColorConversionCodes.BGR2GRAY);
+                frame = new_frame;
+            }
+            drawCrossHair(frame, 200);
+            updateLiveFeedImage(frame);
+            Task.Delay(delay);
+        }
+
+        private void drawCrossHair(Mat frame, int line_size) 
+        {
+            int vert_y1 = (frame.Rows - line_size) / 2;
+            int vert_y2 = vert_y1 + line_size;
+            int horz_x1 = (frame.Cols - line_size) / 2;
+            int horz_x2 = horz_x1 + line_size;
+
+            Cv2.Line(frame, frame.Cols/2, vert_y1, frame.Cols/2, vert_y2, new Scalar(255, 255), thickness:4);
+            Cv2.Line(frame, horz_x1, frame.Rows/2, horz_x2, frame.Rows/2, new Scalar(255, 255), thickness:4);
         }
 
         private void detectGap()
@@ -230,15 +246,29 @@ namespace TestOpenCVSharp
                              method: ContourApproximationModes.ApproxSimple);
             try
             {
-                InputArray left =  InputArray.Create(roi_left);
-                InputArray right =  InputArray.Create(roi_right);
+                /*
+                vector<vector<Point>> hull(contours.size() );
+                for (size_t i = 0; i < contours.size(); i++)
+                {
+                    convexHull(contours[i], hull[i]);
+                }
+                */
+                for (int i = 0; i < contoursSetOne.Length; i++) 
+                {
+                    //InputArray left_in = InputArray.Create<InputArray>(contoursSetOne[i]);
+                    Mat out_hull_left = new Mat();
+                    //Cv2.ConvexHull(contoursSetOne[i], out_hull_left);
+                }
 
-                // failing here, debug!
-                Cv2.ConvexHull(left, out_left);
-                Cv2.ConvexHull(right, out_right);
+                MessageBox.Show("num rows " + frame.Rows.ToString() + "\n" + 
+                                "num cols " + frame.Cols.ToString());
+                /*
+                Cv2.ConvexHull(left_in, out_left);
+                Cv2.ConvexHull(right_in, out_right);
 
                 Cv2.ImShow("leftConvex", out_left);
                 Cv2.ImShow("rightConvex", out_right);
+                */
             }
             catch (Exception ex) 
             {
@@ -263,10 +293,7 @@ namespace TestOpenCVSharp
                 cancelTokenSource.Cancel();
                 cancelTokenSource.Dispose();
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch (Exception ex) { }
         }
 
         private void btnFindGap_Click(object sender, EventArgs e)
@@ -276,9 +303,7 @@ namespace TestOpenCVSharp
                 cancelTokenSource.Cancel();
                 cancelTokenSource.Dispose();
             }
-            catch (Exception ex)
-            {
-            }
+            catch (Exception ex) { }
             Task.Delay(10);
             detectGap();
         }
