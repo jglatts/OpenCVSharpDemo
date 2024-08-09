@@ -166,11 +166,13 @@ namespace TestOpenCVSharp
             updateLiveFeedImage(src_gray);
             Task.Delay(2000);
 
-            Cv2.Threshold(src_gray, src_thresh, 130, 450, ThresholdTypes.TozeroInv);
+            //Cv2.Threshold(src_gray, src_thresh, 130, 250, ThresholdTypes.TozeroInv);
+            Cv2.Threshold(src_gray, src_thresh, 200, 450, ThresholdTypes.Tozero);
             updateLiveFeedImage(src_thresh);
             Task.Delay(2000);
 
-            Cv2.Canny(src_thresh, src_canny, 50, 300, 3, true);
+            // fine tune these params
+            Cv2.Canny(src_thresh, src_canny, 50, 100, 3, true);
             updateLiveFeedImage(src_canny);
             Task.Delay(2000);
 
@@ -237,8 +239,8 @@ namespace TestOpenCVSharp
             roi_right = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
                                          new OpenCvSharp.Range(middle_split, src_canny.Cols));
 
-            Cv2.ImShow("left", roi_left);
-            Cv2.ImShow("right", roi_right);
+            //Cv2.ImShow("left", roi_left);
+            //Cv2.ImShow("right", roi_right);
 
             Cv2.FindContours(roi_left, out contoursSetOne, out hierarchyIndexesOne,
                              mode: RetrievalModes.External,
