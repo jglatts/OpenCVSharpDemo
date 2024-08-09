@@ -248,47 +248,27 @@ namespace TestOpenCVSharp
                              mode: RetrievalModes.External,
                              method: ContourApproximationModes.ApproxSimple);
 
-            /*
-            MessageBox.Show("cSetOne.Size " + contoursSetOne.Length + 
-                            " cSetTwo.Size " + contoursSetTwo.Length);
-            */
-            try
-            {
-                string s = "";
-                for (int i = 0; i < contoursSetOne.Length; i++) 
-                {
-                    List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
-                    for (int j = 0; j < contoursSetOne[i].Length; j++)
-                    {
-                        points.Add(contoursSetOne[i][j]);
-                    }
-                    OpenCvSharp.Point[] hull_pts = Cv2.ConvexHull(points);
-                    s += "idx " + i.ToString() + " - hull_pts.Size " + hull_pts.Length.ToString() + "\n";
-                    // draw the hull pts
-                    for (int k = 0; k < hull_pts.Length; k++) 
-                    {
-                        //src_roi.Add(hull_pts[i]);
-                    }
-                }
-                MessageBox.Show(s);
+            getAddHullPoints(roi_left, contoursSetOne);
+            getAddHullPoints(roi_right, contoursSetOne);
 
-                s = "";
-                for (int i = 0; i < contoursSetTwo.Length; i++)
-                {
-                    List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
-                    for (int j = 0; j < contoursSetTwo[i].Length; j++)
-                    {
-                        points.Add(contoursSetTwo[i][j]);
-                    }
-                    OpenCvSharp.Point[] hull_pts = Cv2.ConvexHull(points);
-                    s += "idx " + i.ToString() + " - hull_pts.Size " + hull_pts.Length.ToString() + "\n";
-                }
-                MessageBox.Show(s);
+            Cv2.ImShow("left-hull", roi_left);
+            Cv2.ImShow("right-hull", roi_right);
+        }
 
-            }
-            catch (Exception ex) 
+        private void getAddHullPoints(Mat frame, OpenCvSharp.Point[][] contours)
+        {
+            for (int i = 0; i < contours.Length; i++)
             {
-                MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+                List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
+                for (int j = 0; j < contours[i].Length; j++)
+                {
+                    points.Add(contours[i][j]);
+                }
+                OpenCvSharp.Point[] out_hull = Cv2.ConvexHull(points);
+                for (int k = 0; k < out_hull.Length; k++)
+                {
+                    Cv2.Circle(frame, out_hull[k].X, out_hull[k].Y, 1, new Scalar(255, 0), thickness: 3);
+                }
             }
         }
 
