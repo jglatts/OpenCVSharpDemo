@@ -167,21 +167,28 @@ namespace TestOpenCVSharp
             Task.Delay(2000);
 
             //Cv2.Threshold(src_gray, src_thresh, 130, 250, ThresholdTypes.TozeroInv);
-            Cv2.Threshold(src_gray, src_thresh, 200, 450, ThresholdTypes.Tozero);
+            Cv2.Threshold(src_gray, src_thresh, 230, 450, ThresholdTypes.BinaryInv);
             updateLiveFeedImage(src_thresh);
             Task.Delay(2000);
 
             // fine tune these params
-            Cv2.Canny(src_thresh, src_canny, 50, 100, 3, true);
+            Cv2.Canny(src_thresh, src_canny, 100, 200, 3, true);
             updateLiveFeedImage(src_canny);
             Task.Delay(2000);
 
+            /*
+             *  See below, can use FindCountours as the gap finder
+             *  Will need to fine tune this guy
+             */
             Cv2.FindContours(src_canny, out contours, out hierarchyIndexes,
                              mode: RetrievalModes.External,
                              method: ContourApproximationModes.ApproxNone);
 
-            anaylzeFrame(src_roi, src_canny);
-            //MessageBox.Show("Contours Length: " + contours.Length);
+            Mat contured_mat = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
+            Cv2.DrawContours(contured_mat, contours, -1, new Scalar(255, 255), thickness:3, hierarchy:hierarchyIndexes);
+            Cv2.ImShow("tt", contured_mat);
+
+            //anaylzeFrame(src_roi, src_canny);
         }
 
         private void anaylzeFrame(Mat src_roi, Mat src_canny)
