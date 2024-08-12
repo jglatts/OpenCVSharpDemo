@@ -16,6 +16,10 @@ using DirectShowLib;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using System;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
+using System.Drawing;
+using System.Security.Cryptography;
 
 namespace TestOpenCVSharp
 {
@@ -28,6 +32,10 @@ namespace TestOpenCVSharp
         private Bitmap image;
         private bool useBlackWhite;
         private int camIndex;
+        private int threshold_value;
+        private int threshold_max_value;
+        private int canny_thresh1;
+        private int canny_thresh2;
 
         public Form1()
         {
@@ -157,8 +165,15 @@ namespace TestOpenCVSharp
             HierarchyIndex[] hierarchyIndexes;
 
             capture.Read(frame);
+            src_roi = frame;
+            // double check if this split is needed
+            /*
             src_roi = frame.SubMat(new OpenCvSharp.Range(50, frame.Rows),
                                    new OpenCvSharp.Range(0, frame.Cols));
+            */
+            if (src_roi == null)
+                return;
+
             updateLiveFeedImage(src_roi);
             Task.Delay(2000);
 
@@ -166,13 +181,15 @@ namespace TestOpenCVSharp
             updateLiveFeedImage(src_gray);
             Task.Delay(2000);
 
-            //Cv2.Threshold(src_gray, src_thresh, 130, 250, ThresholdTypes.TozeroInv);
-            Cv2.Threshold(src_gray, src_thresh, 230, 450, ThresholdTypes.BinaryInv);
+            if (!updateThreshValues())
+                return;
+
+            Cv2.Threshold(src_gray, src_thresh, threshold_value, threshold_max_value, ThresholdTypes.Binary);
             updateLiveFeedImage(src_thresh);
             Task.Delay(2000);
 
             // fine tune these params
-            Cv2.Canny(src_thresh, src_canny, 100, 200, 3, true);
+            Cv2.Canny(src_thresh, src_canny, canny_thresh1, canny_thresh2, 3, false);
             updateLiveFeedImage(src_canny);
             Task.Delay(2000);
 
@@ -182,13 +199,38 @@ namespace TestOpenCVSharp
              */
             Cv2.FindContours(src_canny, out contours, out hierarchyIndexes,
                              mode: RetrievalModes.External,
-                             method: ContourApproximationModes.ApproxNone);
+                             method: ContourApproximationModes.ApproxSimple);
+            //MessageBox.Show("Found # " + contours.Length.ToString() + " contours");
 
             Mat contured_mat = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
-            Cv2.DrawContours(contured_mat, contours, -1, new Scalar(255, 255), thickness:3, hierarchy:hierarchyIndexes);
+            Cv2.DrawContours(contured_mat, contours, -1, new Scalar(255, 255), thickness: 3, hierarchy: hierarchyIndexes);
             Cv2.ImShow("tt", contured_mat);
 
+            Mat contured_mat_2 = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
+            for (int j = 0; j < contours.Length; j++)
+            {
+                if (contours[j].Length > 20)
+                { 
+                    Cv2.DrawContours(contured_mat_2, contours, j, new Scalar(255, 255), 
+                                    thickness: -1, hierarchy: hierarchyIndexes);
+                }
+            }
+            Cv2.ImShow("t2t", contured_mat_2);
+
             //anaylzeFrame(src_roi, src_canny);
+        }
+
+        private bool updateThreshValues()
+        {
+            if (!Int32.TryParse(txtBoxThreshHoldVal.Text, out threshold_value))
+                 return false;
+            if (!Int32.TryParse(txtBoxThreshMaxVal.Text, out threshold_max_value))
+                return false;
+            if (!Int32.TryParse(txtBoxCannyThresh1.Text, out canny_thresh1))
+                return false;
+            if (!Int32.TryParse(txtBoxCannyThresh2.Text, out canny_thresh2))
+                return false;
+            return true;
         }
 
         private void anaylzeFrame(Mat src_roi, Mat src_canny)
@@ -316,6 +358,11 @@ namespace TestOpenCVSharp
         private void radioBtnBlackWhite_CheckedChanged(object sender, EventArgs e)
         {
             useBlackWhite = radioBtnBlackWhite.Checked == true;
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            
         }
     }
 }
