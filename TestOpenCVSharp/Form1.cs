@@ -188,36 +188,71 @@ namespace TestOpenCVSharp
             updateLiveFeedImage(src_thresh);
             Task.Delay(2000);
 
-            // fine tune these params
             Cv2.Canny(src_thresh, src_canny, canny_thresh1, canny_thresh2, 3, false);
             updateLiveFeedImage(src_canny);
             Task.Delay(2000);
 
-            /*
-             *  See below, can use FindCountours as the gap finder
-             *  Will need to fine tune this guy
-             */
             Cv2.FindContours(src_canny, out contours, out hierarchyIndexes,
                              mode: RetrievalModes.External,
-                             method: ContourApproximationModes.ApproxSimple);
+                             method: ContourApproximationModes.ApproxNone);
             //MessageBox.Show("Found # " + contours.Length.ToString() + " contours");
 
             Mat contured_mat = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
             Cv2.DrawContours(contured_mat, contours, -1, new Scalar(255, 255), thickness: 3, hierarchy: hierarchyIndexes);
             Cv2.ImShow("tt", contured_mat);
 
+            // working better edge\wire detection
+            List<OpenCvSharp.Point[]> used_contours = new List<OpenCvSharp.Point[]>();
             Mat contured_mat_2 = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
             for (int j = 0; j < contours.Length; j++)
             {
                 if (contours[j].Length > 20)
-                { 
-                    Cv2.DrawContours(contured_mat_2, contours, j, new Scalar(255, 255), 
+                {
+                    Cv2.DrawContours(contured_mat_2, contours, j, new Scalar(255, 255),
                                     thickness: -1, hierarchy: hierarchyIndexes);
+                    used_contours.Add(contours[j]);
                 }
             }
+
+            int center_x = contured_mat_2.Cols / 2;
+            int center_y = contured_mat_2.Rows / 2;
+            int max_line_val = 50;
+            int left_x = 0;
+            int right_x = 0;
+
+            // find left and right x
+            for (int i = 0; i < used_contours.Count; i++) 
+            {
+                OpenCvSharp.Point[] cnts = used_contours.ElementAt(i);
+                for (int j = 0; j < cnts.Length; j++)
+                {
+                    int check_x = cnts[j].X;
+                    if (check_x > (center_x - max_line_val) &&
+                        check_x < center_x)
+                    { 
+                        left_x = check_x;
+                    }
+                    if (check_x < (center_x + max_line_val) &&
+                        check_x > center_x)
+                    {
+                        right_x = check_x;
+                    }
+                }
+            }
+
+            Cv2.Circle(contured_mat_2, contured_mat_2.Cols / 2, contured_mat_2.Rows / 2, 5, new Scalar(255, 255),
+                        thickness: 2);
+
+            Cv2.Line(contured_mat_2, left_x, 0, left_x, contured_mat_2.Cols, new Scalar(255, 255), thickness: 4);
+            Cv2.Line(contured_mat_2, right_x, 0, right_x, contured_mat_2.Cols, new Scalar(255, 255), thickness: 4);
             Cv2.ImShow("t2t", contured_mat_2);
 
-            //anaylzeFrame(src_roi, src_canny);
+            int left_dist_from_center = center_x - left_x;
+            int right_dist_from_center = right_x - center_x;
+
+            MessageBox.Show("left-dist " + left_dist_from_center + "\n" + 
+                            "right-dist " + right_dist_from_center);
+
         }
 
         private bool updateThreshValues()
@@ -231,96 +266,6 @@ namespace TestOpenCVSharp
             if (!Int32.TryParse(txtBoxCannyThresh2.Text, out canny_thresh2))
                 return false;
             return true;
-        }
-
-        private void anaylzeFrame(Mat src_roi, Mat src_canny)
-        {
-            // splits the image into 2 seperate ROI's
-            // find contours of both ROI's and stores in 2 sets
-            // run convex hull on both sets of contours
-            // find distance between the convex hulls
-            // draw both sets on OG img to examine
-            // thats gap!
-            /*
-                CPP Source
-                Mat src_gray, src_thresh;
-                Mat roi_left, roi_right;
-                vector<vector<Point>> contours_set_one, contours_set_two;
-                vector<Point> convex_hull_points_one, convex_hull_points_two;
-
-                roi_left = src_canny(Range(0, src_canny.size[0]), Range(0, 47));
-                roi_right = src_canny(Range(0, src_canny.size[0]), Range(47, src_canny.size[1]));
-                findContours(roi_left, contours_set_one, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-                findContours(roi_right, contours_set_two, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-                convex_hull_points_one = contoursConvexHull(contours_set_one);
-                convex_hull_points_two = contoursConvexHull(contours_set_two);
-                translateContours(convex_hull_points_two, 47);
-            
-                Rect rect_left = boundingRect(convex_hull_points_one);
-                Rect rect_right = boundingRect(convex_hull_points_two);
-                rectangle(src_roi, rect_left, Scalar(0, 0, 255), 2);
-                rectangle(src_roi, rect_right, Scalar(0, 0, 255), 2);
-                int rect_left_pos = rect_left.x + rect_left.width;
-                int rect_right_pos = rect_right.x;
-                int center_pos = (rect_left_pos + rect_right_pos) / 2;
-
-                cout << "The center pos is " << center_pos << endl;
-                line(src_roi, Point(rect_right_pos, 40), Point(rect_left_pos, 40), Scalar(0, 0, 255), 1);
-                line(src_roi, Point(center_pos, 0), Point(center_pos, roi_left.size[0]), Scalar(255, 0, 0), 1);
-                cout << "Distance to left-edge " << center_pos - rect_left.x << endl;
-                cout << "Distance to right-edge " << (rect_right.x + rect_right.width) - center_pos << endl;
-            */
-            Mat src_gray = new Mat();
-            Mat src_thresh = new Mat();
-            Mat roi_left = new Mat();
-            Mat roi_right = new Mat();
-            Mat out_left = new Mat();
-            Mat out_right = new Mat();
-            OpenCvSharp.Point[][] contoursSetOne;
-            HierarchyIndex[] hierarchyIndexesOne;
-            OpenCvSharp.Point[][] contoursSetTwo;
-            HierarchyIndex[] hierarchyIndexesTwo;
-            int middle_split = src_canny.Cols / 2;
-
-            roi_left = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
-                                        new OpenCvSharp.Range(0, middle_split));
-
-            roi_right = src_canny.SubMat(new OpenCvSharp.Range(0, src_canny.Rows),
-                                         new OpenCvSharp.Range(middle_split, src_canny.Cols));
-
-            //Cv2.ImShow("left", roi_left);
-            //Cv2.ImShow("right", roi_right);
-
-            Cv2.FindContours(roi_left, out contoursSetOne, out hierarchyIndexesOne,
-                             mode: RetrievalModes.External,
-                             method: ContourApproximationModes.ApproxSimple);
-
-            Cv2.FindContours(roi_right, out contoursSetTwo, out hierarchyIndexesTwo,
-                             mode: RetrievalModes.External,
-                             method: ContourApproximationModes.ApproxSimple);
-
-            getAddHullPoints(roi_left, contoursSetOne);
-            getAddHullPoints(roi_right, contoursSetOne);
-
-            Cv2.ImShow("left-hull", roi_left);
-            Cv2.ImShow("right-hull", roi_right);
-        }
-
-        private void getAddHullPoints(Mat frame, OpenCvSharp.Point[][] contours)
-        {
-            for (int i = 0; i < contours.Length; i++)
-            {
-                List<OpenCvSharp.Point> points = new List<OpenCvSharp.Point>();
-                for (int j = 0; j < contours[i].Length; j++)
-                {
-                    points.Add(contours[i][j]);
-                }
-                OpenCvSharp.Point[] out_hull = Cv2.ConvexHull(points);
-                for (int k = 0; k < out_hull.Length; k++)
-                {
-                    Cv2.Circle(frame, out_hull[k].X, out_hull[k].Y, 1, new Scalar(255, 0), thickness: 3);
-                }
-            }
         }
 
         private void updateLiveFeedImage(Mat frame) 
