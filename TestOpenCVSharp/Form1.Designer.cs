@@ -44,8 +44,8 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.mainFeedPicBox)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -94,7 +94,7 @@
             // btnFindGap
             // 
             this.btnFindGap.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnFindGap.Location = new System.Drawing.Point(337, 508);
+            this.btnFindGap.Location = new System.Drawing.Point(343, 508);
             this.btnFindGap.Name = "btnFindGap";
             this.btnFindGap.Size = new System.Drawing.Size(196, 68);
             this.btnFindGap.TabIndex = 4;
@@ -211,15 +211,6 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Canny Params";
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(31, 44);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(74, 25);
-            this.label4.TabIndex = 13;
-            this.label4.Text = "Thresh1";
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -228,6 +219,15 @@
             this.label5.Size = new System.Drawing.Size(74, 25);
             this.label5.TabIndex = 14;
             this.label5.Text = "Thresh2";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(31, 44);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(74, 25);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Thresh1";
             // 
             // Form1
             // 

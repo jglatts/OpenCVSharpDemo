@@ -3,6 +3,9 @@
  *  
  *  ToDo:
  *      - add seperate window for real time camera view
+ *      
+ *  Double check amscope drivers
+ *  Need USB2.0
  *  
  *  Date:   8/8/24
  *  Author: John Glatts
@@ -83,12 +86,7 @@ namespace TestOpenCVSharp
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            try
-            {
-                cancelTokenSource.Cancel();
-                cancelTokenSource.Dispose();
-            }
-            catch (Exception ex) { }
+            stopLiveFeedThread();
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             Task task = new Task(startLiveFeed, token);
@@ -162,47 +160,35 @@ namespace TestOpenCVSharp
             Mat src_roi = new Mat();
             Mat src_thresh = new Mat();
             OpenCvSharp.Point[][] contours;
+            List<OpenCvSharp.Point[]> used_contours = new List<OpenCvSharp.Point[]>();
             HierarchyIndex[] hierarchyIndexes;
+            int center_x = 0;
+            int center_y = 0;
+            int max_line_val = 50;
+            int left_x = 0;
+            int right_x = 0;
+            int left_dist_from_center = 0;
+            int right_dist_from_center = 0;
 
             capture.Read(frame);
             src_roi = frame;
-            // double check if this split is needed
-            /*
-            src_roi = frame.SubMat(new OpenCvSharp.Range(50, frame.Rows),
-                                   new OpenCvSharp.Range(0, frame.Cols));
-            */
             if (src_roi == null)
                 return;
-
-            updateLiveFeedImage(src_roi);
-            Task.Delay(2000);
-
-            Cv2.CvtColor(src_roi, src_gray, ColorConversionCodes.BGR2GRAY);
-            updateLiveFeedImage(src_gray);
-            Task.Delay(2000);
 
             if (!updateThreshValues())
                 return;
 
+            Cv2.CvtColor(src_roi, src_gray, ColorConversionCodes.BGR2GRAY);
             Cv2.Threshold(src_gray, src_thresh, threshold_value, threshold_max_value, ThresholdTypes.Binary);
-            updateLiveFeedImage(src_thresh);
-            Task.Delay(2000);
-
             Cv2.Canny(src_thresh, src_canny, canny_thresh1, canny_thresh2, 3, false);
-            updateLiveFeedImage(src_canny);
-            Task.Delay(2000);
-
             Cv2.FindContours(src_canny, out contours, out hierarchyIndexes,
                              mode: RetrievalModes.External,
                              method: ContourApproximationModes.ApproxNone);
-            //MessageBox.Show("Found # " + contours.Length.ToString() + " contours");
 
             Mat contured_mat = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
             Cv2.DrawContours(contured_mat, contours, -1, new Scalar(255, 255), thickness: 3, hierarchy: hierarchyIndexes);
             Cv2.ImShow("tt", contured_mat);
 
-            // working better edge\wire detection
-            List<OpenCvSharp.Point[]> used_contours = new List<OpenCvSharp.Point[]>();
             Mat contured_mat_2 = new Mat(src_gray.Rows, src_gray.Cols, MatType.CV_8UC1);
             for (int j = 0; j < contours.Length; j++)
             {
@@ -214,11 +200,11 @@ namespace TestOpenCVSharp
                 }
             }
 
-            int center_x = contured_mat_2.Cols / 2;
-            int center_y = contured_mat_2.Rows / 2;
-            int max_line_val = 50;
-            int left_x = 0;
-            int right_x = 0;
+            center_x = contured_mat_2.Cols / 2;
+            center_y = contured_mat_2.Rows / 2;
+            max_line_val = 50;
+            left_x = 0;
+            right_x = 0;
 
             // find left and right x
             for (int i = 0; i < used_contours.Count; i++) 
@@ -247,12 +233,15 @@ namespace TestOpenCVSharp
             Cv2.Line(contured_mat_2, right_x, 0, right_x, contured_mat_2.Cols, new Scalar(255, 255), thickness: 4);
             Cv2.ImShow("t2t", contured_mat_2);
 
-            int left_dist_from_center = center_x - left_x;
-            int right_dist_from_center = right_x - center_x;
+            left_dist_from_center = center_x - left_x;
+            right_dist_from_center = right_x - center_x;
+            bool check = Math.Abs((right_dist_from_center - left_dist_from_center)) <= 15;
 
-            MessageBox.Show("left-dist " + left_dist_from_center + "\n" + 
-                            "right-dist " + right_dist_from_center);
-
+            String s = "left_x " + left_x.ToString() + " - right_x " + right_x.ToString();
+            s += "\nleft-dist " + left_dist_from_center + "\n" +
+                            "right-dist " + right_dist_from_center + "\n" +
+                            (check == true ? "gap good" : "gap not good");
+            MessageBox.Show(s);
         }
 
         private bool updateThreshValues()
@@ -280,6 +269,11 @@ namespace TestOpenCVSharp
 
         private void btnStop_Click_1(object sender, EventArgs e)
         {
+            stopLiveFeedThread();
+        }
+
+        private void stopLiveFeedThread()
+        {
             try
             {
                 cancelTokenSource.Cancel();
@@ -288,16 +282,13 @@ namespace TestOpenCVSharp
             catch (Exception ex) { }
         }
 
+
         private void btnFindGap_Click(object sender, EventArgs e)
         {
-            try
-            {
-                cancelTokenSource.Cancel();
-                cancelTokenSource.Dispose();
-            }
-            catch (Exception ex) { }
+            stopLiveFeedThread();
             Task.Delay(10);
             detectGap();
+            btnStart_Click(null, null);
         }
 
         private void radioBtnBlackWhite_CheckedChanged(object sender, EventArgs e)
