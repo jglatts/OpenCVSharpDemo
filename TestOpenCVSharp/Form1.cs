@@ -42,6 +42,7 @@ namespace TestOpenCVSharp
         private VideoCapture capture;
         private Mat frame;
         private Bitmap image;
+        private MotorHelper motorHelper;
         private bool useBlackWhite;
         private int camIndex;
         private int threshold_value;
@@ -56,8 +57,11 @@ namespace TestOpenCVSharp
             useBlackWhite = false;
             cancelTokenSource = new CancellationTokenSource();
             openAmScopeCam();
-            //openCam();
-            //btnStart_Click(null, null);
+            motorHelper = new MotorHelper();
+            if (!motorHelper.setDevice())
+                MessageBox.Show("error with uc100!");
+            else
+                MessageBox.Show("UC100 connected!");
         }
 
         private void listCamDevices()
@@ -76,8 +80,12 @@ namespace TestOpenCVSharp
             }
             MessageBox.Show("num devices: " + devices.Length + s);
         }
+
         private void startLiveAmScopeThread()
         {
+            if (cam_ == null)
+                return;
+
             uint resnum = cam_.ResolutionNumber;
             uint eSize = 0;
             if (cam_.get_eSize(out eSize))
@@ -172,7 +180,11 @@ namespace TestOpenCVSharp
                     MessageBox.Show(ex.ToString());
                 }
                 if (bOK)
-                    mainFeedPicBox.Image = bmp_;
+                {
+                    frame = BitmapConverter.ToMat(bmp_);
+                    drawCrossHair(frame, 200);
+                    updateLiveFeedImage(frame);
+                }
             }
         }
 
@@ -270,13 +282,16 @@ namespace TestOpenCVSharp
 
         private void drawCrossHair(Mat frame, int line_size) 
         {
-            int vert_y1 = (frame.Rows - line_size) / 2;
+            int rows = 431;
+            int cols = 900;
+
+            int vert_y1 = (rows - line_size) / 2;
             int vert_y2 = vert_y1 + line_size;
-            int horz_x1 = (frame.Cols - line_size) / 2;
+            int horz_x1 = (cols - line_size) / 2;
             int horz_x2 = horz_x1 + line_size;
 
-            Cv2.Line(frame, frame.Cols/2, vert_y1, frame.Cols/2, vert_y2, new Scalar(255, 255), thickness:4);
-            Cv2.Line(frame, horz_x1, frame.Rows/2, horz_x2, frame.Rows/2, new Scalar(255, 255), thickness:4);
+            Cv2.Line(frame, cols/2, vert_y1, cols/2, vert_y2, new Scalar(0, 255), thickness:4);
+            Cv2.Line(frame, horz_x1, rows/2, horz_x2, rows/2, new Scalar(0, 255), thickness:4);
         }
 
         private void detectGap()

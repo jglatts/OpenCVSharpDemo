@@ -53,9 +53,9 @@
             // 
             // mainFeedPicBox
             // 
-            this.mainFeedPicBox.Location = new System.Drawing.Point(121, 63);
+            this.mainFeedPicBox.Location = new System.Drawing.Point(142, 74);
             this.mainFeedPicBox.Name = "mainFeedPicBox";
-            this.mainFeedPicBox.Size = new System.Drawing.Size(639, 418);
+            this.mainFeedPicBox.Size = new System.Drawing.Size(900, 431);
             this.mainFeedPicBox.TabIndex = 0;
             this.mainFeedPicBox.TabStop = false;
             // 
@@ -63,7 +63,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 18F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(366, 7);
+            this.label1.Location = new System.Drawing.Point(501, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(175, 48);
             this.label1.TabIndex = 1;
@@ -72,7 +72,7 @@
             // btnStart
             // 
             this.btnStart.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnStart.Location = new System.Drawing.Point(121, 508);
+            this.btnStart.Location = new System.Drawing.Point(266, 524);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(196, 68);
             this.btnStart.TabIndex = 2;
@@ -83,7 +83,7 @@
             // btnStop
             // 
             this.btnStop.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnStop.Location = new System.Drawing.Point(561, 508);
+            this.btnStop.Location = new System.Drawing.Point(691, 524);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(199, 68);
             this.btnStop.TabIndex = 3;
@@ -94,7 +94,7 @@
             // btnFindGap
             // 
             this.btnFindGap.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnFindGap.Location = new System.Drawing.Point(343, 508);
+            this.btnFindGap.Location = new System.Drawing.Point(480, 524);
             this.btnFindGap.Name = "btnFindGap";
             this.btnFindGap.Size = new System.Drawing.Size(196, 68);
             this.btnFindGap.TabIndex = 4;
@@ -105,7 +105,7 @@
             // radioBtnBlackWhite
             // 
             this.radioBtnBlackWhite.AutoSize = true;
-            this.radioBtnBlackWhite.Location = new System.Drawing.Point(840, 102);
+            this.radioBtnBlackWhite.Location = new System.Drawing.Point(1128, 102);
             this.radioBtnBlackWhite.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.radioBtnBlackWhite.Name = "radioBtnBlackWhite";
             this.radioBtnBlackWhite.Size = new System.Drawing.Size(163, 29);
@@ -118,7 +118,7 @@
             // 
             this.radioBtnColor.AutoSize = true;
             this.radioBtnColor.Checked = true;
-            this.radioBtnColor.Location = new System.Drawing.Point(840, 158);
+            this.radioBtnColor.Location = new System.Drawing.Point(1128, 158);
             this.radioBtnColor.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.radioBtnColor.Name = "radioBtnColor";
             this.radioBtnColor.Size = new System.Drawing.Size(80, 29);
@@ -146,7 +146,7 @@
             // 
             // txtBoxCannyThresh1
             // 
-            this.txtBoxCannyThresh1.Location = new System.Drawing.Point(913, 450);
+            this.txtBoxCannyThresh1.Location = new System.Drawing.Point(1201, 450);
             this.txtBoxCannyThresh1.Name = "txtBoxCannyThresh1";
             this.txtBoxCannyThresh1.Size = new System.Drawing.Size(150, 31);
             this.txtBoxCannyThresh1.TabIndex = 9;
@@ -154,7 +154,7 @@
             // 
             // txtBoxCannyThresh2
             // 
-            this.txtBoxCannyThresh2.Location = new System.Drawing.Point(913, 497);
+            this.txtBoxCannyThresh2.Location = new System.Drawing.Point(1201, 497);
             this.txtBoxCannyThresh2.Name = "txtBoxCannyThresh2";
             this.txtBoxCannyThresh2.Size = new System.Drawing.Size(150, 31);
             this.txtBoxCannyThresh2.TabIndex = 10;
@@ -180,7 +180,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Location = new System.Drawing.Point(795, 63);
+            this.groupBox1.Location = new System.Drawing.Point(1083, 63);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(255, 150);
             this.groupBox1.TabIndex = 13;
@@ -193,7 +193,7 @@
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.txtBoxThreshMaxVal);
             this.groupBox2.Controls.Add(this.txtBoxThreshHoldVal);
-            this.groupBox2.Location = new System.Drawing.Point(795, 233);
+            this.groupBox2.Location = new System.Drawing.Point(1083, 233);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(300, 158);
             this.groupBox2.TabIndex = 14;
@@ -204,7 +204,7 @@
             // 
             this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.label4);
-            this.groupBox3.Location = new System.Drawing.Point(795, 409);
+            this.groupBox3.Location = new System.Drawing.Point(1083, 409);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(300, 150);
             this.groupBox3.TabIndex = 15;
@@ -233,7 +233,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1154, 615);
+            this.ClientSize = new System.Drawing.Size(1488, 667);
             this.Controls.Add(this.txtBoxCannyThresh2);
             this.Controls.Add(this.txtBoxCannyThresh1);
             this.Controls.Add(this.radioBtnColor);
