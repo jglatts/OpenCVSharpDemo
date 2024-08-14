@@ -185,6 +185,7 @@ namespace TestOpenCVSharp
                     drawCrossHair(frame, 200);
                     updateLiveFeedImage(frame);
                 }
+                GC.Collect();
             }
         }
 
