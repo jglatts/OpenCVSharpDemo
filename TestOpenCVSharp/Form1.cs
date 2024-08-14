@@ -3,9 +3,12 @@
  *  
  *  ToDo:
  *      - add seperate window for real time camera view
- *      
- *  Double check amscope drivers
- *  Need USB2.0
+ *  
+ *  Working with Amscope!!
+ *  Needs to use 32bit DLL and 32bit compiler
+ *  
+ *  Will need to convert from bitmap to OpenCV mat
+ *  https://learn.microsoft.com/en-us/answers/questions/365983/convert-int-byte()-or-bitmap-to-the-mat-type-of-op
  *  
  *  Date:   8/8/24
  *  Author: John Glatts
@@ -23,11 +26,17 @@ using System;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 using System.Drawing;
 using System.Security.Cryptography;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static Toupcam;
+using System.Drawing.Imaging;
 
 namespace TestOpenCVSharp
 {
     public partial class Form1 : Form
     {
+        private Toupcam cam_ = null;
+        private Bitmap bmp_ = null;
         private CancellationTokenSource cancelTokenSource;
         private CancellationToken token;
         private VideoCapture capture;
@@ -46,8 +55,9 @@ namespace TestOpenCVSharp
             camIndex = 1;
             useBlackWhite = false;
             cancelTokenSource = new CancellationTokenSource();
-            openCam();
-            btnStart_Click(null, null);
+            openAmScopeCam();
+            //openCam();
+            //btnStart_Click(null, null);
         }
 
         private void listCamDevices()
@@ -65,6 +75,105 @@ namespace TestOpenCVSharp
                 s += dsDevice.Name + "\n";
             }
             MessageBox.Show("num devices: " + devices.Length + s);
+        }
+        private void startLiveAmScopeThread()
+        {
+            uint resnum = cam_.ResolutionNumber;
+            uint eSize = 0;
+            if (cam_.get_eSize(out eSize))
+            {
+                for (uint i = 0; i < resnum; ++i)
+                {
+                    int w = 0, h = 0;
+                    if (cam_.get_Resolution(i, out w, out h)) { 
+                        // print the resoultions number
+                        // will be useful later on
+                    }
+                }
+
+                int width = 0, height = 0;
+                if (cam_.get_Size(out width, out height))
+                {
+                    /* The backend of Winform is GDI, which is different from WPF/UWP/WinUI's backend Direct3D/Direct2D.
+                     * We use their respective native formats, Bgr24 in Winform, and Bgr32 in WPF/UWP/WinUI
+                     */
+                    bmp_ = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+                    if (!cam_.StartPullModeWithCallback(new Toupcam.DelegateEventCallback(DelegateOnEventCallback)))
+                        MessageBox.Show("Failed to start camera.");
+                    else
+                    {
+                        bool autoexpo = true;
+                        cam_.get_AutoExpoEnable(out autoexpo);
+                    }
+                }
+            }
+        }
+
+        private void DelegateOnEventCallback(Toupcam.eEVENT evt)
+        {
+            /* this is call by internal thread of toupcam.dll which is NOT the same of UI thread.
+             * Why we use BeginInvoke, Please see:
+             * http://msdn.microsoft.com/en-us/magazine/cc300429.aspx
+             * http://msdn.microsoft.com/en-us/magazine/cc188732.aspx
+             * http://stackoverflow.com/questions/1364116/avoiding-the-woes-of-invoke-begininvoke-in-cross-thread-winform-event-handling
+             */
+            BeginInvoke((Action)(() =>
+            {
+                /* this run in the UI thread */
+                if (cam_ != null)
+                {
+                    switch (evt)
+                    {
+                        case Toupcam.eEVENT.EVENT_ERROR:
+                            //MessageBox.Show("error!");     
+                            break;
+                        case Toupcam.eEVENT.EVENT_DISCONNECTED:
+                            //MessageBox.Show("disconnected!");
+                            break;
+                        case Toupcam.eEVENT.EVENT_EXPOSURE:
+                            //MessageBox.Show("exposure!");
+                            break;
+                        case Toupcam.eEVENT.EVENT_IMAGE:
+                            onEventImage();
+                            break;
+                        case Toupcam.eEVENT.EVENT_STILLIMAGE:
+                            //MessageBox.Show("error!");
+                            break;
+                        case Toupcam.eEVENT.EVENT_TEMPTINT:
+                            //MessageBox.Show("error!");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }));
+        }
+
+        private void onEventImage()
+        {
+            if (bmp_ != null)
+            {
+                Toupcam.FrameInfoV3 info = new Toupcam.FrameInfoV3();
+                bool bOK = false;
+                try
+                {
+                    BitmapData bmpdata = bmp_.LockBits(new Rectangle(0, 0, bmp_.Width, bmp_.Height), ImageLockMode.WriteOnly, bmp_.PixelFormat);
+                    try
+                    {
+                        bOK = cam_.PullImageV3(bmpdata.Scan0, 0, 24, bmpdata.Stride, out info); // check the return value
+                    }
+                    finally
+                    {
+                        bmp_.UnlockBits(bmpdata);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                if (bOK)
+                    mainFeedPicBox.Image = bmp_;
+            }
         }
 
         private void tryOpenCam()
@@ -86,11 +195,14 @@ namespace TestOpenCVSharp
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            /*
             stopLiveFeedThread();
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             Task task = new Task(startLiveFeed, token);
             task.Start();
+            */
+            startLiveAmScopeThread();
         }
 
         private void openCam()
@@ -104,6 +216,20 @@ namespace TestOpenCVSharp
             {
                 MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException);
                 return;
+            }
+        }
+
+        private void openAmScopeCam()
+        {
+            Toupcam.DeviceV2[] arr = Toupcam.EnumV2();
+            if (arr.Length <= 0)
+            {
+                MessageBox.Show("No camera found.");
+            }
+            cam_ = Toupcam.Open(arr[0].id);
+            if (cam_ != null)
+            { 
+                MessageBox.Show("cam opened!");
             }
         }
 
@@ -213,12 +339,12 @@ namespace TestOpenCVSharp
                 for (int j = 0; j < cnts.Length; j++)
                 {
                     int check_x = cnts[j].X;
-                    if (check_x > (center_x - max_line_val) &&
+                    if (check_x >= (center_x - max_line_val) &&
                         check_x < center_x)
                     { 
                         left_x = check_x;
                     }
-                    if (check_x < (center_x + max_line_val) &&
+                    if (check_x <= (center_x + max_line_val) &&
                         check_x > center_x)
                     {
                         right_x = check_x;
@@ -235,17 +361,21 @@ namespace TestOpenCVSharp
 
             left_dist_from_center = center_x - left_x;
             right_dist_from_center = right_x - center_x;
+
+            // fine tune this
             bool check = Math.Abs((right_dist_from_center - left_dist_from_center)) <= 15;
 
             String s = "left_x " + left_x.ToString() + " - right_x " + right_x.ToString();
             s += "\nleft-dist " + left_dist_from_center + "\n" +
                             "right-dist " + right_dist_from_center + "\n" +
                             (check == true ? "gap good" : "gap not good");
+
             MessageBox.Show(s);
         }
 
         private bool updateThreshValues()
         {
+
             if (!Int32.TryParse(txtBoxThreshHoldVal.Text, out threshold_value))
                  return false;
             if (!Int32.TryParse(txtBoxThreshMaxVal.Text, out threshold_max_value))
@@ -281,7 +411,6 @@ namespace TestOpenCVSharp
             }
             catch (Exception ex) { }
         }
-
 
         private void btnFindGap_Click(object sender, EventArgs e)
         {
