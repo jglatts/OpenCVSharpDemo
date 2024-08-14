@@ -237,6 +237,7 @@ namespace TestOpenCVSharp
             if (arr.Length <= 0)
             {
                 MessageBox.Show("No camera found.");
+                return;
             }
             cam_ = Toupcam.Open(arr[0].id);
             if (cam_ != null)
@@ -277,7 +278,7 @@ namespace TestOpenCVSharp
             }
             drawCrossHair(frame, 200);
             updateLiveFeedImage(frame);
-            Task.Delay(delay);
+            //Task.Delay(delay);
         }
 
         private void drawCrossHair(Mat frame, int line_size) 
@@ -310,6 +311,9 @@ namespace TestOpenCVSharp
             int right_x = 0;
             int left_dist_from_center = 0;
             int right_dist_from_center = 0;
+
+            if (frame == null)
+                return;
 
             capture.Read(frame);
             src_roi = frame;
