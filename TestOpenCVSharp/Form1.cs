@@ -216,12 +216,18 @@ namespace TestOpenCVSharp
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            stopLiveFeedThread();
-            cancelTokenSource = new CancellationTokenSource();
-            token = cancelTokenSource.Token;
-            Task task = new Task(startLiveFeed, token);
-            task.Start();
-            //startLiveAmScopeThread();
+            if (camType == CamType.CAM_WEBCAM)
+            {
+                stopLiveFeedThread();
+                cancelTokenSource = new CancellationTokenSource();
+                token = cancelTokenSource.Token;
+                Task task = new Task(startLiveFeed, token);
+                task.Start();
+            }
+            else
+            {
+                startLiveAmScopeThread();
+            }
         }
 
         private void openCam()
