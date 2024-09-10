@@ -35,6 +35,12 @@ namespace TestOpenCVSharp
 {
     public partial class Form1 : Form
     {
+        private enum CamType
+        {
+            CAM_WEBCAM,
+            CAM_AMSCOPE
+        };
+
         private Toupcam cam_ = null;
         private Bitmap bmp_ = null;
         private CancellationTokenSource cancelTokenSource;
@@ -49,6 +55,7 @@ namespace TestOpenCVSharp
         private int threshold_max_value;
         private int canny_thresh1;
         private int canny_thresh2;
+        private CamType camType;
 
         public Form1()
         {
@@ -56,7 +63,8 @@ namespace TestOpenCVSharp
             camIndex = 1;
             useBlackWhite = false;
             cancelTokenSource = new CancellationTokenSource();
-            openAmScopeCam();
+            camType = CamType.CAM_WEBCAM;
+            openCam();
             motorHelper = new MotorHelper();
             if (!motorHelper.setDevice())
                 MessageBox.Show("error with uc100!");
@@ -208,27 +216,33 @@ namespace TestOpenCVSharp
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            /*
             stopLiveFeedThread();
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             Task task = new Task(startLiveFeed, token);
             task.Start();
-            */
-            startLiveAmScopeThread();
+            //startLiveAmScopeThread();
         }
 
         private void openCam()
         {
-            try
+            if (camType == CamType.CAM_WEBCAM)
             {
-                capture = new VideoCapture(camIndex);
-                capture.Open(camIndex);
+                try
+                {
+                    capture = new VideoCapture(camIndex);
+                    capture.Open(camIndex);
+                    MessageBox.Show("Camera Opened!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException);
+                    return;
+                }
             }
-            catch (Exception ex)
+            else 
             {
-                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException);
-                return;
+                openAmScopeCam();
             }
         }
 
@@ -277,7 +291,7 @@ namespace TestOpenCVSharp
                 Cv2.CvtColor(frame, new_frame, ColorConversionCodes.BGR2GRAY);
                 frame = new_frame;
             }
-            drawCrossHair(frame, 200);
+            //drawCrossHair(frame, 200);
             updateLiveFeedImage(frame);
             //Task.Delay(delay);
         }
@@ -448,6 +462,21 @@ namespace TestOpenCVSharp
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             
+        }
+
+        private void mainFeedPicBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnGoLeft_Click(object sender, EventArgs e)
+        {
+            motorHelper.doMotorMove(0.25, true);
+        }
+
+        private void btnGoRight_Click(object sender, EventArgs e)
+        {
+            motorHelper.doMotorMove(0.25, false);
         }
     }
 }

@@ -46,9 +46,13 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnGoRight = new System.Windows.Forms.Button();
+            this.btnGoLeft = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.mainFeedPicBox)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainFeedPicBox
@@ -58,6 +62,7 @@
             this.mainFeedPicBox.Size = new System.Drawing.Size(900, 431);
             this.mainFeedPicBox.TabIndex = 0;
             this.mainFeedPicBox.TabStop = false;
+            this.mainFeedPicBox.Click += new System.EventHandler(this.mainFeedPicBox_Click);
             // 
             // label1
             // 
@@ -229,11 +234,45 @@
             this.label4.TabIndex = 13;
             this.label4.Text = "Thresh1";
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.btnGoRight);
+            this.groupBox4.Controls.Add(this.btnGoLeft);
+            this.groupBox4.Location = new System.Drawing.Point(142, 664);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(1241, 184);
+            this.groupBox4.TabIndex = 16;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Motor Control";
+            // 
+            // btnGoRight
+            // 
+            this.btnGoRight.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnGoRight.Location = new System.Drawing.Point(622, 40);
+            this.btnGoRight.Name = "btnGoRight";
+            this.btnGoRight.Size = new System.Drawing.Size(196, 42);
+            this.btnGoRight.TabIndex = 18;
+            this.btnGoRight.Text = ">>>";
+            this.btnGoRight.UseVisualStyleBackColor = true;
+            this.btnGoRight.Click += new System.EventHandler(this.btnGoRight_Click);
+            // 
+            // btnGoLeft
+            // 
+            this.btnGoLeft.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnGoLeft.Location = new System.Drawing.Point(253, 40);
+            this.btnGoLeft.Name = "btnGoLeft";
+            this.btnGoLeft.Size = new System.Drawing.Size(196, 42);
+            this.btnGoLeft.TabIndex = 17;
+            this.btnGoLeft.Text = "<<<";
+            this.btnGoLeft.UseVisualStyleBackColor = true;
+            this.btnGoLeft.Click += new System.EventHandler(this.btnGoLeft_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1488, 667);
+            this.ClientSize = new System.Drawing.Size(1488, 889);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.txtBoxCannyThresh2);
             this.Controls.Add(this.txtBoxCannyThresh1);
             this.Controls.Add(this.radioBtnColor);
@@ -253,6 +292,7 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -278,5 +318,8 @@
         private GroupBox groupBox3;
         private Label label5;
         private Label label4;
+        private GroupBox groupBox4;
+        private Button btnGoRight;
+        private Button btnGoLeft;
     }
 }
