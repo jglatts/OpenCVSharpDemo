@@ -59,7 +59,7 @@
             // 
             this.mainFeedPicBox.Location = new System.Drawing.Point(142, 74);
             this.mainFeedPicBox.Name = "mainFeedPicBox";
-            this.mainFeedPicBox.Size = new System.Drawing.Size(900, 431);
+            this.mainFeedPicBox.Size = new System.Drawing.Size(900, 476);
             this.mainFeedPicBox.TabIndex = 0;
             this.mainFeedPicBox.TabStop = false;
             this.mainFeedPicBox.Click += new System.EventHandler(this.mainFeedPicBox_Click);
@@ -77,7 +77,7 @@
             // btnStart
             // 
             this.btnStart.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnStart.Location = new System.Drawing.Point(266, 524);
+            this.btnStart.Location = new System.Drawing.Point(258, 599);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(196, 68);
             this.btnStart.TabIndex = 2;
@@ -88,7 +88,7 @@
             // btnStop
             // 
             this.btnStop.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnStop.Location = new System.Drawing.Point(691, 524);
+            this.btnStop.Location = new System.Drawing.Point(683, 599);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(199, 68);
             this.btnStop.TabIndex = 3;
@@ -99,7 +99,7 @@
             // btnFindGap
             // 
             this.btnFindGap.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnFindGap.Location = new System.Drawing.Point(480, 524);
+            this.btnFindGap.Location = new System.Drawing.Point(472, 599);
             this.btnFindGap.Name = "btnFindGap";
             this.btnFindGap.Size = new System.Drawing.Size(196, 68);
             this.btnFindGap.TabIndex = 4;
@@ -238,7 +238,7 @@
             // 
             this.groupBox4.Controls.Add(this.btnGoRight);
             this.groupBox4.Controls.Add(this.btnGoLeft);
-            this.groupBox4.Location = new System.Drawing.Point(142, 664);
+            this.groupBox4.Location = new System.Drawing.Point(140, 696);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(1241, 184);
             this.groupBox4.TabIndex = 16;
